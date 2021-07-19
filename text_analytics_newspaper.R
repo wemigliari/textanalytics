@@ -99,22 +99,23 @@ percent <- frequency %>% group_by(words) %>%
   mutate(Percentage=paste0(round(freq/sum(freq),8)))
 percent <- data.frame(percent)
 
-percent2 <- data.frame(percent[c(1:15),])
+riks_percent <- data.frame(percent[c(1:15),])
 
 library(ggplot2)
 library(hrbrthemes)
 library(RColorBrewer)
 
 nb.cols <- 15
-mycolors <- colorRampPalette(brewer.pal(8, "Blues"))(nb.cols) 
+mycolors <- colorRampPalette(brewer.pal(8, "Greys"))(nb.cols) 
 
-ggplot(percent2, aes(reorder(x=words, -freq, sum), y = freq, fill = words, label = words)) + 
+ggplot(riks_percent, aes(reorder(x=words, -freq, sum), y = freq)) + 
   theme_bw() + 
-  geom_bar(stat = "identity")+
-  theme(legend.position = "right") +
-  geom_text(size = 2.5, color="black", position = position_stack(vjust = 0.5)) +
-  scale_fill_manual(values = mycolors) +
-  guides(fill=guide_legend(title="Tipologia do quantum"))
+  geom_bar(aes(fill=words),stat = "identity")+
+  theme(axis.text.x=element_text(angle=45,hjust=1,vjust=0.5), legend.position = "none")+
+  labs(title="",
+       y = "Repetition", x = "", caption = "Source: Sveriges Riksdag",
+       color = "") +
+  scale_fill_grey(limits = riks_percent$words, start = 0, end = 0.8)
 
 
 ### Duplication counts. Not to be removed.
