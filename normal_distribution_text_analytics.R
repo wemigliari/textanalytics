@@ -1,0 +1,139 @@
+library(dplyr)
+library(tidytext)
+library(rvest)
+library(pdftools)
+library(textreuse)
+
+
+
+riks_pdf <- pdf_text(pdf = "https://www.riksdagen.se/globalassets/07.-dokument--lagar/the-instrument-of-government-2015.pdf")
+
+myCorpus_pdf <- paste0(riks_pdf)
+class(myCorpus_pdf)
+
+library(quanteda)
+
+removeFeatures(tokenize(myCorpus_pdf, removePunct = TRUE),
+               stopwords("english"))
+
+
+words_riks <- tokenize_words(myCorpus_pdf, lowercase = TRUE,
+                             stopwords = c("the", "of", "and", "for", "to", "in", "a", "an", "by", "or", "à"))
+
+tab_riks <- data.frame(matrix(unlist(words_riks), ncol = 1),stringsAsFactors=FALSE)
+
+
+library(plyr)
+
+frequency <- count(tab_riks)
+
+# Descending order
+frequency <- frequency[order(frequency$freq, decreasing = TRUE),]
+names(frequency)[1] <- "words"
+
+percent <- frequency %>% group_by(words) %>%
+  mutate(Percentage=paste0(round(freq/sum(freq),8)))
+percent <- data.frame(percent)
+
+percent2 <- data.frame(percent[c(1:15),])
+
+percent3 <- data.frame(percent)
+
+
+### Normal distribution - word repetition
+
+sample.range <- percent3$freq
+
+class(sample.range)
+sr_mean <- mean(sample.range)
+
+sr_sd <- sd(sample.range)
+sr_dist <- dnorm(sample.range, mean = sr_mean, sd = sr_sd)
+
+sr_df <- data.frame("Repetition" = sample.range, "Density" = sr_dist)
+
+library(ggplot2)
+ggplot(sr_df, aes(x = Repetition, y = Density)) + geom_line() +
+  labs(title="",
+       y = "Normal Density Function", x = "", caption = "Source: Sveriges Riksdag",
+       color = "")
+
+
+### Probability. What is the probability of a word being repeated 75 times?
+
+
+
+pp <- function(x) {
+  print(paste0(round(x*100, 3), "%"))
+}
+
+perc <- pp(sr_df$Density[sr_df$Repetition == 250]) # likelihood of Entries == 50?
+
+### Cummulative density function
+
+sr_pnorm <- pnorm(sample.range, sr_mean, sr_sd)
+sr_df2 <- cbind(sr_df, "CDF" = sr_pnorm)
+ggplot(sr_df2, aes(x = Repetition, y = CDF)) + geom_line() +
+  labs(title="",
+       y = "Cumulative Distribution Function", x = "", caption = "Source: Sveriges Riksdag",
+       color = "")
+
+### Descriptive Statistics
+
+
+names(desc_stat)[1] <- "Entries"
+
+
+library(pastecs)
+
+res <- stat.desc(sr_df2)
+round(res, 2)
+
+#### Scales
+
+library(scales)
+
+sr_df3 <- cbind(sr_df2, percent3$words, as.numeric(percent3$Percentage))
+names(sr_df3)[4]<- "Words"
+names(sr_df3)[5]<- "Percentage"
+
+# expect a warning about rows with missing values being removed             https://www.tidytextmining.com/tidytext.html
+ggplot(sr_df3, aes(x = Repetition, y = Percentage, 
+                      color = abs(Percentage - Repetition))) +
+  geom_jitter(alpha = 0.1, size = 2.5, width = 0.3, height = 0.3) +
+  geom_text(aes(label = Words), check_overlap = TRUE, vjust = 1.5, size = 2.5, angle=45) +
+  scale_color_gradient(limits = c(0, 0.001), 
+                       low = "darkslategray4", high = "gray75") +
+  scale_y_log10(labels = percent_format()) +
+  theme(legend.position="none") +
+  labs(y = "Cummulative Percentage of Repetition", x = NULL)
+
+#### Lexical Dispersion Plot
+         
+library("quanteda")
+library("quanteda.textplots")
+
+myCorpus <- corpus(words_risks) %>% 
+  corpus_reshape(to = "sentences")
+summary(myCorpus)
+# make some duplicated author docvar values
+set.seed(1)
+docvars(myCorpus, "author") <- 
+  sample(c("A", "B", "C"), 
+         size = ndoc(myCorpus), replace = TRUE)
+
+groupedtexts <- texts(myCorpus, groups = "author")
+length(groupedtexts)
+# [1] 3
+names(groupedtexts)
+# [1] "author1" "author2" "author3"
+
+
+textplot_xray(
+  kwic(corpus, pattern = "riksdag"),
+  kwic(corpus, pattern = "law"),
+  kwic(corpus, pattern = "be")
+)
+
+
+
