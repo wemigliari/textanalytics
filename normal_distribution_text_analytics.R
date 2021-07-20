@@ -2,25 +2,24 @@ library(dplyr)
 library(tidytext)
 library(rvest)
 library(pdftools)
-library(textreuse)
+
 
 
 
 riks_pdf <- pdf_text(pdf = "https://www.riksdagen.se/globalassets/07.-dokument--lagar/the-instrument-of-government-2015.pdf")
 
-myCorpus_pdf <- paste0(riks_pdf)
+myCorpus_pdf <- paste0(as.character(riks_pdf))
 class(myCorpus_pdf)
 
-library(quanteda)
-
-removeFeatures(tokenize(myCorpus_pdf, removePunct = TRUE),
-               stopwords("english"))
-
-
-words_riks <- tokenize_words(myCorpus_pdf, lowercase = TRUE,
-                             stopwords = c("the", "of", "and", "for", "to", "in", "a", "an", "by", "or", "à"))
+library(tokenizers)
+words_riks <- tokenize_words(myCorpus_pdf, strip_numeric = TRUE, 
+                             simplify = TRUE, 
+                             stopwords = c("is", "not", "one", "at","laid", "are","has","such","that","as", "which","under","the", "on", "with", "down", "other", "of", "and", "for", "to", "in", "a", "an", "by", "or", "à"))
 
 tab_riks <- data.frame(matrix(unlist(words_riks), ncol = 1),stringsAsFactors=FALSE)
+
+
+######
 
 
 library(plyr)
@@ -34,10 +33,63 @@ names(frequency)[1] <- "words"
 percent <- frequency %>% group_by(words) %>%
   mutate(Percentage=paste0(round(freq/sum(freq),8)))
 percent <- data.frame(percent)
+num <- as.numeric(percent[,3])
+percent <- cbind(percent, num)
+colnames(percent)[4]<-"Percentage"
+percent[,3] <- NULL
+
 
 percent2 <- data.frame(percent[c(1:15),])
 
 percent3 <- data.frame(percent)
+
+
+
+### Tokenizer sentences
+
+words_riks2 <- tokenize_ngrams(myCorpus_pdf, 
+                               n=4,
+                               simplify = TRUE, 
+                               stopwords = c("is", "not", "one", "at","laid", "are","has","such","that","as", "which","under","the", "on", "with", "down", "other", "of", "and", "for", "to", "in", "a", "an", "by", "or", "à"))
+
+
+
+### Correlations
+library(tokenizers)
+
+
+tft_token_ngram2 <- tokenize_ngrams(x = myCorpus_pdf,
+                                   lowercase = TRUE,
+                                   n = 3L,
+                                   n_min = 3L,
+                                   stopwords = character(),
+                                   ngram_delim = " ",
+                                   simplify = FALSE)
+
+tft_token_ngram2 <- tokenize_skip_ngrams(x = myCorpus_pdf,
+                                    stopwords = character(),
+                                    simplify = FALSE)
+
+sr_df4 <- tibble(txt=myCorpus_pdf)
+
+sr_df5 <- sr_df4 %>%
+  unnest_tokens(word, txt)
+
+sr_df6 <- sr_df4 %>%
+  unnest_tokens(sentence, txt, token = "sentences")
+sr_df7 <- sr_df4 %>%
+  unnest_tokens(ngram, txt, token = "ngrams", n = 23)
+
+library(factoextra)
+# Correlation-based distance method
+sr_df8 <- scale(percent[,2:3])
+sr_df8 <- sr_df8[-c(101:1456),]
+head(sr_df8)
+
+res.dist <- get_dist(sr_df8, method = "pearson")
+head(round(as.matrix(res.dist), 2))
+
+fviz_dist(res.dist, lab_size = 8)
 
 
 ### Normal distribution - word repetition
@@ -61,13 +113,19 @@ ggplot(sr_df, aes(x = Repetition, y = Density)) + geom_line() +
 
 ### Probability. What is the probability of a word being repeated 75 times?
 
-
+sr_df <- cbind(percent3$words, sr_df)
+names(sr_df)[1]<-"Words"
 
 pp <- function(x) {
-  print(paste0(round(x*100, 3), "%"))
+  print(paste0(round(x*100, 7), "%"))
 }
 
-perc <- pp(sr_df$Density[sr_df$Repetition == 250]) # likelihood of Entries == 50?
+# Repetition Number
+perc <- pp(sr_df$Density[sr_df$Repetition == 8]) # likelihood of Entries == 50?
+
+  
+#Repetition Words
+perc2 <- pp(sr_df$Density[sr_df$Words == "freedom"])
 
 ### Cummulative density function
 
@@ -80,11 +138,9 @@ ggplot(sr_df2, aes(x = Repetition, y = CDF)) + geom_line() +
 
 ### Descriptive Statistics
 
-
-names(desc_stat)[1] <- "Entries"
-
-
 library(pastecs)
+
+mean(sr_df2$Repetition)
 
 res <- stat.desc(sr_df2)
 round(res, 2)
@@ -113,7 +169,7 @@ ggplot(sr_df3, aes(x = Repetition, y = Percentage,
 library("quanteda")
 library("quanteda.textplots")
 
-myCorpus <- corpus(words_risks) %>% 
+myCorpus <- corpus(tab_riks$matrix.unlist.words_riks...ncol...1.) %>% 
   corpus_reshape(to = "sentences")
 summary(myCorpus)
 # make some duplicated author docvar values
@@ -130,9 +186,9 @@ names(groupedtexts)
 
 
 textplot_xray(
-  kwic(corpus, pattern = "riksdag"),
-  kwic(corpus, pattern = "law"),
-  kwic(corpus, pattern = "be")
+  kwic(myCorpus, pattern = "riksdag"),
+  kwic(myCorpus, pattern = "law"),
+  kwic(myCorpus, pattern = "be")
 )
 
 
