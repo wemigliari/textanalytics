@@ -63,7 +63,7 @@ ggplot(sr_df, aes(x = Repetition, y = Density)) + geom_line() +
 
 ### Probability. What is the probability of a word set being repeated x times?
 
-Proportion <- percent3$freq/sum(percent3$freq)
+Proportion <- percent3$freq/sum(percent3$freq)              #http://www.henry.k12.ga.us/ugh/apstat/chapternotes/7supplement.html
 sum(Proportion)
                   
 sr_df <- cbind(percent3$words, sr_df, Proportion)
