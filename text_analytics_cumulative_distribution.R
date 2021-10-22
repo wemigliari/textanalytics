@@ -2,6 +2,7 @@ library(dplyr)
 library(tidytext)
 library(rvest)
 library(pdftools)
+library(ggplot2)
 
 
 riks_pdf <- pdf_text(pdf = "https://www.riksdagen.se/globalassets/07.-dokument--lagar/the-instrument-of-government-2015.pdf")
@@ -47,6 +48,9 @@ percent3 <- data.frame(percent)
 sample.range <- percent3$freq
 class(sample.range)
 sr_mean <- mean(sample.range)
+sr_sd <- sd(sample.range)
+sr_df <- data.frame(sample.range)
+names(sr_df)[1] <- "Repetition"
 
 sr_pnorm <- pnorm(sample.range, sr_mean, sr_sd)
 sr_df2 <- cbind(sr_df, "CDF" = sr_pnorm)
@@ -54,3 +58,4 @@ ggplot(sr_df2, aes(x = Repetition, y = CDF)) + geom_line() +
   labs(title="",
        y = "Cumulative Distribution Function", x = "", caption = "Source: Sveriges Riksdag",
        color = "")
+
