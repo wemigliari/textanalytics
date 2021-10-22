@@ -155,8 +155,8 @@ names(sr_df3)[5]<- "Percentage"
 # expect a warning about rows with missing values being removed             https://www.tidytextmining.com/tidytext.html
 ggplot(sr_df3, aes(x = Repetition, y = Percentage, 
                    color = abs(Percentage - Repetition))) +
-  geom_jitter(alpha = 0.1, size = 2.5, width = 0.3, height = 0.3) +
-  geom_text(aes(label = Words), check_overlap = TRUE, vjust = 1.5, size = 2.5, angle=45) +
+  geom_jitter(alpha = 0.3, size = sr_df3$Repetition, width = 0.3, height = 0.3) +
+  geom_text(aes(label = Words), check_overlap = TRUE, vjust = 1.5, size = 2.5, angle=0) +
   scale_color_gradient(limits = c(0, 0.001), 
                        low = "darkslategray4", high = "gray75") +
   scale_y_log10(labels = percent_format()) +
