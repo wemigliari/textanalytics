@@ -1,10 +1,11 @@
-
-
 library(wordcloud)
 library(SnowballC)
 library(tm)
 library(RCurl)
 require(XML)
+library(pdftools)
+library(tokenizers)
+library(dplyr)
 
 dilma_statement_pdf <- pdf_text(pdf = "https://gadebate.un.org/sites/default/files/gastatements/66/BR_en_0.pdf")
 
@@ -34,6 +35,7 @@ library(plyr)
 frequency_Dilma <- count(tab_Dilma)
 
 # Descending order
+
 frequency_Dilma <- frequency_Dilma[order(frequency_Dilma$freq, decreasing = TRUE),]
 names(frequency_Dilma)[1] <- "words"
 
