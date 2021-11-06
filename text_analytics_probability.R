@@ -54,3 +54,4 @@ names(sr_df)[1]<-"Words"
 pp <- function(x) {
   print(paste0(round(x*100, 7), "%"))
 }
+
