@@ -50,3 +50,4 @@ sr_mean <- mean(sample.range)
 sr_pnorm2 <- rnorm(sample.range)
 p = ecdf(sr_pnorm2)
 plot(p)
+
