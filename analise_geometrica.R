@@ -7,13 +7,11 @@ library(gghighlight)
 analise_geometrica <- read_xlsx("/Users/wemigliari/Documents/R/tabelas/analise_geometrica.xlsx")
 
 
-ggplot(analise_geometrica, aes(analise_geometrica$Moradia,
-                              analise_geometrica$Cidade, 
-                              size=analise_geometrica$Moradia,
-                              shape = factor(analise_geometrica$Shape),
-                              color = "red"))+
+ggplot(analise_geometrica, aes(Conservador,
+                              Progressista, 
+                              size=3)) +
   geom_point(alpha=0.3) +
-  geom_text(aes(label = analise_geometrica$Tema, color = "black"), size = 4) +
+  geom_text(aes(label = analise_geometrica$Tema), size = 1.5) +
   scale_size(range = c(6, 7)) +
               xlim(-1,1)+
               ylim(-1,1)+
@@ -24,7 +22,7 @@ ggplot(analise_geometrica, aes(analise_geometrica$Moradia,
               geom_hline(yintercept=0)+
               geom_vline(xintercept=0) +
   labs(title="Capital Cultural/Moradia e Cidade",
-        x ="", y = "") +
+        x ="Tradição", y = "Mudança") +
   annotate("text", 
            -0.6, 0.8, 
            label = "Reformas Profundas", 
@@ -70,10 +68,10 @@ ggplot(analise_geometrica, aes(analise_geometrica$Moradia,
 
 
 ggplot() +
-  geom_point(data = analise_geometrica, aes(x = analise_geometrica$Moradia,
-                                            y = analise_geometrica$Cidade, 
-                                            colour = analise_geometrica$Entrevistado,
-                                            size=analise_geometrica$Cidade,
+  geom_point(data = analise_geometrica, aes(x = Conservador,
+                                            y = Progressista, 
+                                            colour = Entrevistado,
+                                            size=Conservador,
                                             alpha = 0.05)) +
   
   scale_size(range = c(2, 10)) +
@@ -129,13 +127,13 @@ ggplot() +
            size=5) 
 
 
-ggplot(data = analise_geometrica, aes(x = analise_geometrica$Moradia,
-                                      y = analise_geometrica$Cidade, 
-                                      group = analise_geometrica$Entrevistado,
-                                      size = analise_geometrica$Cidade,
+ggplot(data = analise_geometrica, aes(x = Conservador,
+                                      y = Progressista, 
+                                      group = Entrevistado,
+                                      size = Conservador,
                                       alpha = 0.05)) +
-  geom_point(aes(shape=analise_geometrica$Entrevistado, 
-                 color=analise_geometrica$Entrevistado)) +
+  geom_point(aes(shape=Entrevistado, 
+                 color=Entrevistado)) +
   
   scale_size(range = c(2, 10)) +
   xlim(-1,1)+
@@ -146,7 +144,7 @@ ggplot(data = analise_geometrica, aes(x = analise_geometrica$Moradia,
     plot.title = element_text(size=11))+
   geom_hline(yintercept=0)+
   geom_vline(xintercept=0) +
-  labs(title="Capital Cultural/Moradia e Cidade",
+  labs(title="Capital Cultural, n = 114",
        x ="", y = "") +
   annotate("text", 
            -0.6, 0.8, 
