@@ -56,32 +56,28 @@ tab1 <- tab1[-3,]
 library(dplyr)
 
 # Adding column based on other column:
-testA <- tab1 %>%
-  mutate(id = case_when(
-    endsWith(word, "cop26") ~ "s01",
-    endsWith(word, "climate") ~ "s02",
-    endsWith(word, "uk") ~ "s03",
-    endsWith(word, "carbon") ~ "s04"
-  ))
+#testA <- tab1 %>%
+  #mutate(id = case_when(
+    #endsWith(word, "cop26") ~ "s01",
+    #endsWith(word, "climate") ~ "s02",
+    #endsWith(word, "uk") ~ "s03",
+    #endsWith(word, "carbon") ~ "s04"
+  #))
 
 # Adding column based on other column:
 testA <- tab1 %>%
   mutate(
     type = case_when(
-      count > 10 ~ "government",
-      count > 10 ~ "governance",
-      count == 8 ~ "civil society",
-      count == 6 | count > 3 ~ "culture",
-      count == 4 ~ "values",
-      count == 2 | count < 2 ~ "behaviour"
+      count == 34  ~ "government",
+      count == 32  ~ "governance",
+      count == 10 ~ "civil society",
+      count == 8 ~ "culture",
+      count == 6 ~ "values",
+      count == 4 ~ "behaviour",
+      count == 2 ~ "opinion"
     )
   )
 
-##########
-
-class(testA)
-
-test_graphA <- graph_from_data_frame(testA$type, testA$word)
 
 ########## Dagens Nyheter
 
@@ -124,6 +120,32 @@ class(tab2)
 
 tab2 = tab2[-c(1, 2, 3, 5, 6, 8, 10, 11, 12, 15),]
 tab2$newspaper <- "Dagens Nyheter"
+
+
+#######
+
+# Adding column based on other column:
+testB <- tab2 %>%
+  mutate(
+    type = case_when(
+      count == 22  ~ "government",
+      count == 18  ~ "governance",
+      count == 13 ~ "civil society",
+      count == 11 ~ "culture",
+      count == 10 ~ "values",
+      count == 9 ~ "behaviour",
+      count == 8 ~ "opinion",
+      count == 7 ~ "values2",
+      count == 6 ~ "behaviour2",
+      count == 5 ~ "opinion2",
+      count == 4 ~ "values3",
+      count == 3 ~ "behaviour3",
+      count == 2 ~ "opinion3",
+      count == 1 ~ "opinion4"
+    )
+  )
+
+### https://dplyr.tidyverse.org/reference/case_when.html
 
 
 ########### Merge Tables
@@ -173,4 +195,49 @@ ggraph(graph, layout = 'linear', circular = TRUE) +
   geom_edge_arc(aes(colour = factor(newspaper)))
 
 #########
+
+
+class(testA)
+
+testAA <- data.frame(testA$type, testA$word)
+
+test_graphA <- graph_from_data_frame(testAA)
+
+testBB <- data.frame(testB$type, testB$word)
+
+test_graphB <- graph_from_data_frame(testBB)
+
+
+set.seed(132)
+
+par(mfrow=c(1,2), mar=c(4,1,1,1), oma=c(1,1,1,1))
+plot(test_graphA, edge.arrow.size=.3, vertex.color="gold", vertex.size=7, vertex.frame.color="black", vertex.label.color="black", 
+     vertex.label.cex=0.3, vertex.label.dist=2, edge.curved=0.4, cex = 1, vertex.label = NA, xlab = "The Guardian")
+grid(nx = NULL, ny = NULL,
+     lty = 2, col = "gray", lwd = 1)
+
+x <- c(-0.8, -0.05, 0.2)
+y <- c(0.1, -0.5, 0.7)
+
+xnew <- x[order(Arg(scale(x) + scale(y) * 1i))]
+ynew <- y[order(Arg(scale(x) + scale(y) * 1i))]
+
+polygon(xnew ,ynew)
+
+plot(test_graphB, edge.arrow.size=.3, vertex.color="red", vertex.size=7, vertex.frame.color="black", vertex.label.color="black", 
+     vertex.label.cex=0.3, vertex.label.dist=2, edge.curved=0.4, cex = 1, vertex.label = NA, xlab = "Dagens Nyheter") 
+
+grid(nx = NULL, ny = NULL,
+     lty = 2, col = "gray", lwd = 1)
+
+x <- c(-0.4, 0.2, 0.4)
+y <- c(-0.1, -0.9, 0.38)
+
+xnew <- x[order(Arg(scale(x) + scale(y) * 1i))]
+ynew <- y[order(Arg(scale(x) + scale(y) * 1i))]
+
+polygon(xnew ,ynew)
+
+
+
 
