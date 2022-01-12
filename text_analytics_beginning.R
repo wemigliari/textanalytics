@@ -87,7 +87,7 @@ perc2 <- pp(sr_df$Density[sr_df$Words == "election"])
 
 sr_pnorm <- pnorm(sample.range, sr_mean, sr_sd)
 sr_df2 <- cbind(sr_df, "CDF" = sr_pnorm)
-ggplot(sr_df2, aes(x = Repetition, y = CDF)) + geom_line() +
+ggplot(sr_df2, aes(x = sr_df2$Proportion, y = CDF)) + geom_line() +
   labs(title="",
        y = "Cumulative Distribution Function", x = "", caption = "Source: Sveriges Riksdag",
        color = "")
@@ -103,7 +103,7 @@ plot(p)
 
 library(pastecs)
 
-mean(sr_df2$Repetition)
+mean(sr_df2$Words)
 
 res <- stat.desc(sr_df2)
 round(res, 2)
@@ -112,20 +112,26 @@ round(res, 2)
 
 library(scales)
 
-sr_df3 <- cbind(sr_df2, percent3$words, as.numeric(percent3$Percentage))
-names(sr_df3)[4]<- "Words"
-names(sr_df3)[5]<- "Percentage"
+sr_df3 <- cbind(sr_df2, percent3$words)
+names(sr_df3)[5]<- "Entries"
+
+remove.list <- paste(c("be", "it", "its", "her", "his", "no", "any"), collapse = '|')
+
+sr_df3 <- sr_df3[!grepl(remove.list, sr_df3$Entries),]
 
 # expect a warning about rows with missing values being removed             https://www.tidytextmining.com/tidytext.html
-ggplot(sr_df3, aes(x = Repetition, y = Percentage, 
-                      color = abs(Percentage - Repetition))) +
-  geom_jitter(alpha = 0.1, size = 2.5, width = 0.3, height = 0.3) +
-  geom_text(aes(label = Words), check_overlap = TRUE, vjust = 1.5, size = 2.5, angle=45) +
+
+ggplot(sr_df3, aes(x = Proportion, y = CDF, 
+                      color = abs(CDF - Proportion))) +
+  geom_abline(color = "gray40", lty = 2) +
+  geom_jitter(alpha = 0.1, size = 1.5, width = 0.3, height = 0.3) +
+  geom_text(aes(label = Entries), check_overlap = TRUE, vjust = 1.5) +
+  scale_x_log10(labels = percent_format()) +
+  scale_y_log10(labels = percent_format()) +
   scale_color_gradient(limits = c(0, 0.001), 
                        low = "darkslategray4", high = "gray75") +
-  scale_y_log10(labels = percent_format()) +
   theme(legend.position="none") +
-  labs(y = "Cumulative Percentage of Repetition", x = NULL)
+  labs(y = "Entries", x = NULL)
 
 
 
