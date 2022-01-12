@@ -2,7 +2,7 @@ library(dplyr)
 library(tidytext)
 library(rvest)
 
-newspaper <- read_html("https://www.theguardian.com/uk/commentisfree/")
+newspaper <- read_html("https://www.theguardian.com/uk/environment")
 
 headlines <- newspaper %>%
   html_nodes(".js-headline-text") %>%
@@ -41,7 +41,7 @@ class(tab)
 
 # 1.2 Sentences 
 
-newspaper <- read_html("https://www.theguardian.com/uk/commentisfree/")
+newspaper <- read_html("https://www.theguardian.com/uk/environment")
 
 headlines <- newspaper %>%
   html_nodes(".js-headline-text") %>%
@@ -70,5 +70,9 @@ quantify <- data.frame(tft_token_ngram[[1]])
 duplicated(quantify) 
 quantify <- quantify %>% distinct() #Removing duplicates if that's the case
 duplicated(quantify)
+
+class(quantify)
+
+
 
 
