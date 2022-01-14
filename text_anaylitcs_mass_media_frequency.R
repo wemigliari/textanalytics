@@ -90,13 +90,45 @@ dev.off()
 
 par(mfrow=c(1,2), mar=c(6,1,2,1), oma=c(2,2,1,1))
 
-barplot(testA[1:10,]$count, las = 2, names.arg = testA[1:10,]$type,
-        col ="gold", main ="The Guardian",
+barplot(testB[1:10,]$count, las = 2, names.arg = testA[1:10,]$type,
+        col ="lightblue", main ="Dagens Nyheter",
         ylab = "Frequencies", cex.axis=0.7, cex.names=0.7)
 
-barplot(testB[1:10,]$count, las = 2, names.arg = testA[1:10,]$type,
-        col ="red", main ="Dagens Nyheter",
+barplot(testA[1:10,]$count, las = 2, names.arg = testA[1:10,]$type,
+        col ="steelblue", main ="The Guardian",
         ylab = "Frequencies", cex.axis=0.7, cex.names=0.7)
+
+
+#####
+
+frequency <- tab1$count/sum(tab1$count)
+frequency <- data.frame(frequency)
+tab11 <- cbind(tab1, frequency)
+
+frequency <- tab2$count/sum(tab2$count)
+frequency <- data.frame(frequency)
+tab22 <- cbind(tab2, frequency)
+
+testAB <- rbind(tab11, tab22)
+testAB <- testAB[-c(9, 254, 255, 256),]
+
+
+
+
+library(scales)
+
+ggplot(testAB, aes(x = frequency, y = count, 
+                      color = abs(count - frequency))) +
+  theme_bw() +
+  geom_jitter(alpha = 0.1, size = 2.5, width = 0.3, height = 0.3) +
+  geom_text(aes(label = word), check_overlap = TRUE, vjust = 1.5) +
+  scale_x_log10(labels = percent_format()) +
+  scale_y_log10(labels = percent_format()) +
+  facet_wrap(~newspaper, ncol = 2) +
+  theme(legend.position="none") +
+  labs(y = "Distribution of Frequency", x = NULL)
+
+
 
 
 
