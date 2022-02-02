@@ -40,6 +40,12 @@ percent[,3] <- NULL
 
 percent3 <- data.frame(percent)
 
+sample.range <- percent3$freq
+class(sample.range)
+
+sr_mean <- mean(sample.range)
+sr_sd <- sd(sample.range)
+
 ### Probability. What is the probability of a word set being repeated x times?
 
 Proportion <- percent3$freq/sum(percent3$freq)
@@ -52,6 +58,6 @@ names(sr_df)[1]<-"Words"
 
 ### Probability on Repetitions, not on the number of events over the total number of words
 pp <- function(x) {
-  print(paste0(round(x*100, 7), "%"))
+  print(paste0(round(x*100, 8), "%"))
 }
 
